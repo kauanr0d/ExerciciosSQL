@@ -651,3 +651,16 @@ select idtransportadora, sum(valor) from pedido group by idtransportadora order 
 select datapedido, sum(valor) from pedido group by datapedido order by datapedido asc;
 -- 22. O somatório do valor do pedido agrupado por cliente, vendedor e transportadora.
 select idcliente,idvendedor,idtransportadora,sum(valor) from pedido group by idcliente, idvendedor, idtransportadora;
+  
+SELECT vendedor.idvendedor, vendedor.nome, count(pedido.idpedido) AS TotalDePedidos
+FROM pedido
+JOIN vendedor ON vendedor.idvendedor = pedido.idvendedor
+GROUP BY vendedor.idvendedor, vendedor.nome
+order by idvendedor;
+
+select  cliente.nome, vendedor.nome, count(pedido.idpedido) as totalpedidos from pedido
+JOIN cliente ON cliente.idclient = pedido.idcliente
+JOIN vendedor ON vendedor.idvendedor = pedido.idvendedor
+group by vendedor.nome, cliente.nome
+order by cliente.nome;
+-- 23. O somatório do valor do pedido que esteja entre 01/04/2008 e 10/12/2009 e que seja maior que R$ 200,00
