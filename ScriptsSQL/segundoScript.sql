@@ -2,7 +2,7 @@ create table cliente(
 	idclient integer not null,
 	nome varchar(50), -- nome do campo, tipo e determinar tamanho, indicar se pode ser um campo nulo
 	cpf char(11),
-	rg varchar(15),
+	rg varchar(15), 
 	data_nascimento date,
 	genero char(1),
 	profissao varchar(30),
@@ -23,7 +23,7 @@ create table cliente(
 --ver os dados por comando SQL:
 --SELECT * FROM public."nomeDaTabela"
 --ORDER BY "atributo selecionado" -- ou seja, exiba ordenado de acordo com um atributo especifico
-
+ 
 insert into cliente(idclient,nome,cpf,rg,data_nascimento,genero,profissao,nacionalidade,logradouro,numero,complemento,bairro,municipio,uf)
 values(1,'Manoel','888283821','32323','2001-01-30','M','Estudante','Brasileira','Rua Joaquim Nabuco','23','Casa','Cidade Nova','Porto Uniao','SC');
 
@@ -664,3 +664,168 @@ JOIN vendedor ON vendedor.idvendedor = pedido.idvendedor
 group by vendedor.nome, cliente.nome
 order by cliente.nome;
 -- 23. O somatório do valor do pedido que esteja entre 01/04/2008 e 10/12/2009 e que seja maior que R$ 200,00
+select sum(valor) from pedido where datapedido between '2008-04-01' and '2009-12-10';
+-- 24. A média do valor do pedido do vendedor André.
+select * from vendedor order by nome;
+
+select vendedor.nome, round(avg(valor),2)
+from pedido 
+join vendedor ON pedido.idvendedor = vendedor.idvendedor 
+where pedido.idvendedor = 1
+group by vendedor.nome, vendedor.idvendedor; 
+
+-- 25. A média do valor do pedido da cliente Jéssica.
+select * from cliente;
+select *from pedido where pedido.idcliente = 15;
+
+select cliente.nome, round(avg(valor),2)
+from pedido
+join cliente ON pedido.idcliente = cliente.idclient
+where pedido.idcliente = 15
+group by cliente.nome;
+
+--  26. A quantidade de pedidos transportados pela transportadora BS. Transportes.
+select * from transportadora;
+
+select transportadora.nome, count(pedido.idpedido)
+from pedido
+join transportadora on transportadora.idtransportadora = pedido.idtransportadora
+where transportadora.idtransportadora = 1
+group by transportadora.nome;
+ 
+-- 27. A quantidade de pedidos agrupados por vendedor.
+select * from pedido;
+
+select vendedor.idvendedor,vendedor.nome, count(pedido.idpedido)
+from pedido
+join vendedor on vendedor.idvendedor = pedido.idvendedor
+group by vendedor.nome, vendedor.idvendedor
+order by count(pedido.idpedido) desc; 
+
+-- 28. A quantidade de pedidos agrupados por cliente.
+select cliente.idclient,cliente.nome, count(pedido.idpedido)
+from pedido
+join cliente on cliente.idclient = pedido.idcliente
+group by cliente.nome, cliente.idclient
+order by count(pedido.idpedido) desc; 
+
+-- 29. A quantidade de pedidos entre 15/04/2008 e 25/04/2008.
+select count(idpedido) as Pedidos from pedido where datapedido between '2008-04-15' and '2008-04-25';
+
+-- 30. A quantidade de pedidos que o valor seja maior que R$ 1.000,00.
+select cliente.nome as Cliente, vendedor.nome as Vendedor, pedido.idpedido
+from pedido
+join cliente on cliente.idclient = pedido.idcliente
+join vendedor on vendedor.idvendedor = pedido.idvendedor
+where pedido.valor>1000;
+ 
+-- 31. A quantidade de microcomputadores vendida.
+select * from produto;
+ 
+select sum(pedidoproduto.quantidade) as qtMicroPC from pedidoproduto  where pedidoproduto.idproduto = 1;
+
+-- 32. A quantidade de produtos vendida agrupado por produto.
+select idproduto, sum(quantidade) from pedidoproduto group by idproduto order by idproduto desc;
+-- 33. O somatório do valor dos produtos dos pedidos, agrupado por pedido.
+select idpedido, sum(valor_unidade)
+from pedidoproduto
+join produto on pedidoproduto.idproduto = produto.idproduto
+group by pedidoproduto.idpedido
+order by idpedido; 
+-- 34. A quantidade de produtos agrupados por pedido.
+select idpedido, sum(quantidade)
+from pedidoproduto
+group by pedidoproduto.idpedido
+order by idpedido;
+-- 35. O somatório do valor total de todos os produtos do pedido.
+select sum(valor_unidade) from pedidoproduto ;
+-- 36. A média dos produtos do pedido 6.
+select round(avg(valor_unidade),2) as Médiadoproduto
+from pedidoproduto
+where idpedido = 6;
+-- 37. O valor do maior produto do pedido.
+select max(valor_unidade) from pedidoproduto;
+-- 38. O valor do menor produto do pedido.
+select min(valor_unidade) from pedidoproduto;
+--39. O somatório da quantidade de produtos por pedido.
+select * from pedidoproduto;
+select idpedido, sum(quantidade) from pedidoproduto group by idpedido;
+--40. O somatório da quantidade de todos os produtos do pedido.
+select sum(valor_unidade) from pedidoproduto;
+
+-- relacionamento com joins(junções)
+--left outer join retorna todos 
+select
+	cln.nome, 
+	prf.nome
+from 
+	cliente as cln 
+left outer join
+	profissao as prf on cln.idprofissao = prf.idprofissao;
+
+--inner join obriga que exista relacionamento
+select
+	cln.nome, 
+	prf.nome
+from 
+	cliente as cln 
+inner join
+	profissao as prf on cln.idprofissao = prf.idprofissao;
+select
+	cln.nome, 
+	prf.nome
+from 
+	cliente as cln 
+right outer join
+	profissao as prf on cln.idprofissao = prf.idprofissao
+
+-- 5 Lista Joins
+-- 1. O nome do cliente, a profissão, a nacionalidade, o logradouro, o número, o complemento, o bairro, o município e a unidade de federação.
+select
+	cln.nome as cliente,
+	prf.nome as profissao,
+	ncn.nome as nacionalidade,
+	cln.numero as numero,
+	cmpt.nome as complemento, 
+	brr.nome as bairro,
+	mcp.nome as municipio,
+	uf.nome as estado,
+	uf.sigla as sigla
+from      
+	cliente as cln
+left outer join
+	profissao as prf ON prf.idprofissao = cln.idprofissao
+left outer join
+	nacionalidade as ncn ON ncn.idnacionalidade = cln.idnacionalidade
+left outer join
+	complemento as cmpt ON cmpt.idcomplemento = cln.idcomplemento
+left outer join
+	bairro as brr ON brr.idbairro = cln.idbairro
+left outer join
+	municipio as mcp ON mcp.idmunicipio = cln.idmunicipio
+left outer join 
+	uf as uf ON mcp.iduf = uf.iduf; 
+	 
+-- 2. O nome do produto, o valor e o nome do fornecedor.
+select *from produto;
+select
+	pdt.nome as NomeProduto,
+	pdt.valor as ValorProduto,
+	fnd.nome as NomeFornecedor
+from 
+	produto as pdt
+left outer join
+	fornecedor as fnd on fnd.idfornecedor = pdt.idfornecedor;
+-- 3. O nome da transportadora e o município.
+select * from pedido;
+select 
+	pedido.idpedido,
+	trns.nome as Transportadora,
+	mcp.nome as Municipio
+from pedido 
+left outer join
+	transportadora as trns on trns.idtransportadora = pedido.idtransportadora
+left outer join
+	municipio as mcp on mcp.idmunicipio = trns.idmunicipio;
+-- 
+	
