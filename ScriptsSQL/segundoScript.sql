@@ -1173,18 +1173,53 @@ from
 left outer join
 	cliente on cliente.idclient = pdd.idcliente
 group by 
-	cliente.nome, cliente.idclient;
+	cliente.nome, cliente.idclient
+order by
+	cliente.idclient;
 
 -- usando uma subconsulta, consigo recuperar todos os clientes independente se realizaram um pedido ou não
-select
+select 
 	cln.idclient as id_cliente,
 	cln.nome as nome_cliente,
 	(select count(pdd.idpedido) from pedido as pdd where pdd.idcliente = cln.idclient) as total_pedidos
 from 
-	cliente as cln;
+	cliente as cln
+order by 
+	cln.idclient;
+-- 7: select 	
+	cln.idclient,
+	cln.nome,
+	(select count(pdd.idpedido) from pedido as pdd where cln.idclient = pdd.idcliente) as total_de_pedidos
+from
+	cliente as cln
+order by 
+	cln.idclient;
+-- alternativa:
+-- selecionando id do cliente, o nome e quantidade de pedidos, considerando os clientes que fizeram ao menos um pedido
+select
+	cln.idclient,
+	cln.nome,
+	(select count(pdd.idpedido)from pedido as pdd where cln.idclient = pdd.idcliente) as total_de_pedidos
+from
+	cliente as cln
+where
+	(select count(pdd.idpedido) from pedido as pdd where cln.idclient = pdd.idcliente)>=1;
 
 
+--8. Para revisar, refaça o exercício anterior (número 07) utilizando group by e mostrando somente os clientes que fizeram pelo menos um pedido.--
 
+select
+	cln.idclient,
+	cln.nome,
+	(select count(pdd.idpedido)from pedido as pdd where cln.idclient = pdd.idcliente) as total_de_pedidos
+from
+	cliente as cln
+where
+	(select count(pdd.idpedido) from pedido as pdd where cln.idclient = pdd.idcliente)>=1
+group by
+	cln.idclient, cln.nome
+order by
+ 	1;
 
 
 	
