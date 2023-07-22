@@ -804,7 +804,9 @@ left outer join
 left outer join
 	municipio as mcp ON mcp.idmunicipio = cln.idmunicipio
 left outer join 
-	uf as uf ON mcp.iduf = uf.iduf; 
+	uf as uf ON mcp.iduf = uf.iduf
+order by
+	cln.nome; 
 	 
 -- 2. O nome do produto, o valor e o nome do fornecedor.
 select *from produto;
@@ -1219,7 +1221,154 @@ where
 group by
 	cln.idclient, cln.nome
 order by
- 	1;
+ 	1; 
 
+-- Views
+--é  como se fosse criado uma nova tabela
+--ajuda retornar joins sem necessidade scriptar várias vezes uma msm consulta
+create view cliente_profissao as
+select
+	cln.nome as cliente,
+	prf.nome as profissao
+from
+	cliente cln
+left outer join
+	profissao prf on cln.idprofissao = prf.idprofissao;
 
-	
+drop view cliente_profissao;
+select * from cliente_profissao;	
+
+-- Lista de Views
+--1. O nome, a profissão, a nacionalidade, o complemento, o município, a unidade de federação, o bairro, o CPF,o RG, a data de nascimento, o gênero (mostrar “Masculino” ou “Feminino”), o logradouro, o número e as observações dos clientes.
+create view 
+	listar_clientes
+as
+select
+	cln.nome as nome_cliente, 
+	prf.nome as profissao_cliente,
+	ncn.nome as nacionalidade_cliente,
+	cmpt.nome as complemento_cliente,
+	mcp.nome as municipio_cliente,
+	uf.nome as uf_cliente,
+	brr.nome as bairro_cliente,
+	cln.cpf as cpf_cliente,
+	cln.rg as rg_cliente,
+	cln.data_nascimento as cliente_data_de_nascimento,
+	case cln.genero
+		when 'M'
+		then 'Masculino'
+	else
+		'Feminino'
+	end as genero,
+	cln.logradouro,
+	cln.numero,
+	cln.observacoes
+from
+	cliente cln
+left outer join
+	profissao as prf on prf.idprofissao = cln.idprofissao
+left outer join
+	municipio as mcp on mcp.idmunicipio = cln.idmunicipio 
+left outer join 
+	uf on uf.iduf = mcp.iduf
+left outer join
+	bairro as brr on brr.idbairro = cln.idbairro
+left outer join
+	complemento as cmpt on cmpt.idcomplemento = cln.idcomplemento 
+left outer join
+	nacionalidade as ncn on ncn.idnacionalidade = cln.idnacionalidade 
+order by
+	cln.nome ;
+
+select * from listar_clientes;
+--2. O nome do município e o nome e a sigla da unidade da federação.
+create view 
+	listar_municipios
+as
+	select
+		mcp.nome as municipio,
+		uf.sigla as UF
+	from
+		municipio mcp
+	left outer join
+		uf on uf.iduf = mcp.iduf
+	order by
+		mcp.nome;
+select * from listar_municipios;
+--3. O nome do produto, o valor e o nome do fornecedor dos produtos.
+select * from produto p ;
+
+create view
+	listar_produtos
+as
+	select
+		pdt.nome as produto,
+		pdt.valor as valor_em_reais,
+		fnc.nome as fornecedor
+	from
+		produto pdt
+	left outer join
+		fornecedor fnc on fnc.idfornecedor = pdt.idfornecedor
+	order by
+		pdt.nome;
+select * from listar_produtos;
+
+--4. O nome da transportadora, o logradouro, o número, o nome da unidade de federação e a sigla da unidade de federação das transportadoras.
+create view
+	listar_transportadoras
+as
+	select
+		trp.nome as transportadora,
+		trp.logradouro as logradouro,
+		trp.numero as numero,
+		mcp.nome as municipio,
+		uf.nome  as estado,
+		uf.sigla as sigla 
+	from
+		transportadora trp
+	left outer join
+		municipio mcp on mcp.idmunicipio = trp.idmunicipio
+	left outer join
+		uf on uf.iduf = mcp.iduf
+	order by 
+		1; 
+select * from listar_transportadoras ;
+--5. A data do pedido, o valor, o nome da transportadora, o nome do cliente e o nome do vendedor dos pedidos.
+create view
+	listar_pedidos
+as
+	select
+		pdd.datapedido as data_pedido,
+		pdd.valor as valor,
+		trp.nome as transportadora,
+		cln.nome as cliente,
+		vdd.nome as vendedor
+	from
+		pedido pdd
+	left outer join
+		cliente cln on cln.idclient = pdd.idcliente
+	left outer join
+		transportadora trp on trp.idtransportadora = pdd.idtransportadora
+	left outer join
+		vendedor vdd on vdd.idvendedor = pdd.idvendedor
+	order by
+		1 desc;
+select * from listar_pedidos ;
+--6. O nome do produto, a quantidade, o valor unitário e o valor total dos produtos do pedido.
+ create view	
+ 	listar_pedidoproduto
+ as
+ 	select
+ 		pdt.nome as produto,
+ 		pdp.quantidade as quantidade,
+ 		pdp.valor_unidade as valor_unitario,
+ 		pdd.valor as valor_total
+	from
+		pedido pdd
+	left outer join
+		pedidoproduto pdp on pdp.idpedido = pdd.idpedido
+	left outer join
+		produto pdt on pdt.idproduto = pdp.idproduto
+	order by
+		pdd.idpedido;
+select * from listar_pedidoproduto;
